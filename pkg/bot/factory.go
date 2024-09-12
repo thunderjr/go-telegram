@@ -14,7 +14,7 @@ type TelegramBot struct {
 	UpdateGateway *update.Gateway
 }
 
-func New(token string, opts ...botOption) (*TelegramBot, error) {
+func New(token string, opts ...BotOption) (*TelegramBot, error) {
 	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		return nil, err

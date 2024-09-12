@@ -2,9 +2,9 @@ package bot
 
 import "github.com/thunderjr/go-telegram/pkg/bot/update"
 
-type botOption func(*TelegramBot)
+type BotOption func(*TelegramBot)
 
-func WithUpdateHandlers(handlers []update.Handler) botOption {
+func WithUpdateHandlers(handlers []update.Handler) BotOption {
 	return func(b *TelegramBot) {
 		b.UpdateGateway = update.NewGateway(handlers...)
 	}
