@@ -2,6 +2,7 @@ package bot
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -27,7 +28,7 @@ func New(token string, opts ...botOption) (*TelegramBot, error) {
 	return instance, nil
 }
 
-func (t *TelegramBot) Updates(ctx context.Context) {
+func (t *TelegramBot) Updates(ctx context.Context, errChan chan<- error) {
 	if t.UpdateGateway == nil {
 		log.Println("[update gateway] not initialized")
 		return
@@ -40,7 +41,7 @@ func (t *TelegramBot) Updates(ctx context.Context) {
 
 	for update := range t.GetUpdatesChan(tgbotapi.NewUpdate(0)) {
 		if err := t.UpdateGateway.Handle(ctx, update); err != nil {
-			log.Printf("[update gateway] error handling update: %v\n", err)
+			errChan <- fmt.Errorf("[update gateway] error handling update: %w", err)
 			continue
 		}
 	}
