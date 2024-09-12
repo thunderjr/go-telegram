@@ -43,6 +43,17 @@ func WithMessageButtons(buttons ...KeyboardRow) sendOption {
 	}
 }
 
+func WithWebappButton(text, url string) sendOption {
+	return func(msg tgbotapi.Chattable) tgbotapi.Chattable {
+		markup := tgbotapi.NewReplyKeyboard(
+			[]tgbotapi.KeyboardButton{
+				tgbotapi.NewKeyboardButtonWebApp(text, tgbotapi.WebAppInfo{URL: url}),
+			},
+		)
+		return WithReplyMarkup(markup)(msg)
+	}
+}
+
 func WithReplyMarkup(markup any) sendOption {
 	return func(msg tgbotapi.Chattable) tgbotapi.Chattable {
 		switch m := msg.(type) {

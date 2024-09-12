@@ -2,7 +2,6 @@ package update
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -53,11 +52,8 @@ func (g Gateway) Handle(ctx context.Context, update tgbotapi.Update) error {
 				return err
 			}
 
-			fmt.Println("action found", action)
 			handler, ok := g.handlers[action]
-			fmt.Println("action ok", ok)
 			if ok && handler.Type() == HandlerTypeReply {
-				fmt.Println("Calling this shit")
 				return handler.Handle(update)
 			}
 		}
