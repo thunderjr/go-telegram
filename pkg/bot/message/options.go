@@ -5,6 +5,9 @@ import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 func WithMarkdownParseMode() sendOption {
 	return func(msg tgbotapi.Chattable) tgbotapi.Chattable {
 		switch m := msg.(type) {
+		case tgbotapi.EditMessageTextConfig:
+			m.ParseMode = tgbotapi.ModeMarkdown
+			return m
 		case tgbotapi.MessageConfig:
 			m.ParseMode = tgbotapi.ModeMarkdown
 			return m
