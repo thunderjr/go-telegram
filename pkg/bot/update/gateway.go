@@ -39,9 +39,10 @@ func NewGateway(handlers ...Handler) *Gateway {
 
 func (g Gateway) Handle(ctx context.Context, update tgbotapi.Update) error {
 	if update.CallbackQuery != nil {
-		handler, ok := g.handlers[update.CallbackQuery.Data]
-		if ok && handler.Type() == HandlerTypeKeyboardCallback {
-			return handler.Handle(update)
+		for key, handler := range g.handlers {
+			if strings.HasPrefix(update.CallbackQuery.Data, key) && handler.Type() == HandlerTypeKeyboardCallback {
+				return handler.Handle(update)
+			}
 		}
 	}
 
