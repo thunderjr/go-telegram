@@ -5,22 +5,8 @@ import (
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/thunderjr/go-telegram/pkg/bot/message"
 )
-
-var (
-	HandlerTypeKeyboardCallback HandlerType = "keyboard_callback"
-	HandlerTypeMessage          HandlerType = "message"
-	HandlerTypeWebApp           HandlerType = "webapp"
-	HandlerTypeReply            HandlerType = "reply"
-)
-
-type HandlerType string
-
-type Handler interface {
-	Key() string
-	Type() HandlerType
-	Handle(tgbotapi.Update) error
-}
 
 type Gateway struct {
 	handlers map[string]Handler
@@ -77,4 +63,15 @@ func (g Gateway) Handle(ctx context.Context, update tgbotapi.Update) error {
 
 func (g Gateway) Len() int {
 	return g.count
+}
+
+func getReplyAction(ctx context.Context, u tgbotapi.Update) (string, error) {
+	m, err := ReplyActionRepo(ctx).FindOne(ctx, message.ReplyAction{
+		MessageID: u.Message.ReplyToMessage.MessageID,
+		Recipient: u.Message.Chat.ID,
+	})
+	if err != nil {
+		return "", err
+	}
+	return m.OnReply, nil
 }
