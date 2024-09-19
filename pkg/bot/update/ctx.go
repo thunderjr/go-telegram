@@ -14,3 +14,11 @@ func ReplyActionRepo(ctx context.Context) data.Repository[message.ReplyAction] {
 	}
 	return r
 }
+
+func FormAnswerRepo(ctx context.Context) data.Repository[FormAnswer] {
+	r, ok := ctx.Value("FormAnswerRepo").(data.Repository[FormAnswer])
+	if !ok {
+		panic("context key FormAnswerRepo not found")
+	}
+	return r
+}

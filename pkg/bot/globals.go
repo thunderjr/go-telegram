@@ -6,6 +6,7 @@ import (
 	"github.com/thunderjr/go-telegram/pkg/bot/data"
 	"github.com/thunderjr/go-telegram/pkg/bot/data/redis"
 	"github.com/thunderjr/go-telegram/pkg/bot/message"
+	"github.com/thunderjr/go-telegram/pkg/bot/update"
 )
 
 type dataProvider string
@@ -50,4 +51,8 @@ func WithEditableRepo(ctx context.Context, repo data.Repository[message.Editable
 
 func WithReplyActionRepo(ctx context.Context, repo data.Repository[message.ReplyAction]) context.Context {
 	return context.WithValue(ctx, "ReplyActionRepo", repo)
+}
+
+func WithFormAnswerRepo(ctx context.Context, repo data.Repository[update.FormAnswer]) context.Context {
+	return context.WithValue(ctx, "FormAnswerRepo", repo)
 }
