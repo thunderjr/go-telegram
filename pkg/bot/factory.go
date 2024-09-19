@@ -11,7 +11,7 @@ import (
 
 type TelegramBot struct {
 	*tgbotapi.BotAPI
-	UpdateGateway *update.Gateway
+	updateGateway *update.Gateway
 }
 
 func New(token string, opts ...BotOption) (*TelegramBot, error) {
@@ -29,20 +29,29 @@ func New(token string, opts ...BotOption) (*TelegramBot, error) {
 }
 
 func (t *TelegramBot) Updates(ctx context.Context, errChan chan<- error) {
-	if t.UpdateGateway == nil {
+	if t.updateGateway == nil {
 		log.Println("[update gateway] not initialized")
 		return
 	}
 
-	if t.UpdateGateway.Len() == 0 {
+	if t.updateGateway.Len() == 0 {
 		log.Println("[update gateway] no handlers")
 		return
 	}
 
 	for update := range t.GetUpdatesChan(tgbotapi.NewUpdate(0)) {
-		if err := t.UpdateGateway.Handle(ctx, update); err != nil {
+		if err := t.updateGateway.Handle(ctx, update); err != nil {
 			errChan <- fmt.Errorf("[update gateway] error handling update: %w", err)
 			continue
 		}
 	}
+}
+
+func (t *TelegramBot) AddHandlers(h ...update.Handler) {
+	if t.updateGateway == nil {
+		log.Fatalln("[update gateway] not initialized")
+		return
+	}
+
+	t.updateGateway.AddHandlers(h...)
 }

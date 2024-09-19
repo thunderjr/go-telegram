@@ -6,6 +6,6 @@ type BotOption func(*TelegramBot)
 
 func WithUpdateHandlers(handlers []update.Handler) BotOption {
 	return func(b *TelegramBot) {
-		b.UpdateGateway = update.NewGateway(handlers...)
+		b.updateGateway = update.NewGateway(handlers...)
 	}
 }

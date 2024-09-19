@@ -23,6 +23,13 @@ func NewGateway(handlers ...Handler) *Gateway {
 	return &Gateway{h, count}
 }
 
+func (g *Gateway) AddHandlers(handlers ...Handler) {
+	for _, handler := range handlers {
+		g.handlers[handler.Key()] = handler
+		g.count++
+	}
+}
+
 func (g Gateway) Handle(ctx context.Context, update tgbotapi.Update) error {
 	if update.CallbackQuery != nil {
 		for key, handler := range g.handlers {
