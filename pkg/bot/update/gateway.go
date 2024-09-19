@@ -2,6 +2,7 @@ package update
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -41,14 +42,14 @@ func (g Gateway) Handle(ctx context.Context, update tgbotapi.Update) error {
 
 	if update.Message != nil {
 		if update.Message.ReplyToMessage != nil {
-			action, err := getReplyAction(ctx, update)
+			action, err, remove := getReplyAction(ctx, update)
 			if err != nil {
-				return err
+				return errors.Join(err, remove())
 			}
 
 			handler, ok := g.handlers[action]
 			if ok && handler.Type() == HandlerTypeReply {
-				return handler.Handle(update)
+				return firstError(handler.Handle(update), remove())
 			}
 		}
 
@@ -72,13 +73,29 @@ func (g Gateway) Len() int {
 	return g.count
 }
 
-func getReplyAction(ctx context.Context, u tgbotapi.Update) (string, error) {
+func getReplyAction(ctx context.Context, u tgbotapi.Update) (string, error, func() error) {
+	removeFn := func() error {
+		return ReplyActionRepo(ctx).Remove(ctx, message.ReplyAction{
+			MessageID: u.Message.ReplyToMessage.MessageID,
+			Recipient: u.Message.Chat.ID,
+		})
+	}
+
 	m, err := ReplyActionRepo(ctx).FindOne(ctx, message.ReplyAction{
 		MessageID: u.Message.ReplyToMessage.MessageID,
 		Recipient: u.Message.Chat.ID,
 	})
 	if err != nil {
-		return "", err
+		return "", err, removeFn
 	}
-	return m.OnReply, nil
+	return m.OnReply, nil, removeFn
+}
+
+func firstError(errs ...error) error {
+	for _, err := range errs {
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
