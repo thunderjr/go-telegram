@@ -49,7 +49,7 @@ func (t *TelegramBot) Updates(ctx context.Context, errChan chan<- error) {
 
 func (t *TelegramBot) AddHandlers(h ...update.Handler) {
 	if t.updateGateway == nil {
-		log.Fatalln("[update gateway] not initialized")
+		t.updateGateway = update.NewGateway(h...)
 		return
 	}
 
