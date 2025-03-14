@@ -34,8 +34,13 @@ type FormFieldPrompt struct {
 	Order  int
 }
 
+type FormAnswerData[T any] struct {
+	Data             *T
+	LastAnswerUpdate tgbotapi.Update
+}
+
 type NewFormHandlerParams[T any] struct {
-	OnSubmit func(ctx context.Context, data *T) error
+	OnSubmit func(ctx context.Context, data *FormAnswerData[T]) error
 	Bot      interface {
 		Send(tgbotapi.Chattable) (tgbotapi.Message, error)
 	}
@@ -144,7 +149,12 @@ func NewFormHandlers[T any](
 
 		if step.Action == "submit" {
 			if params.OnSubmit != nil {
-				if err := params.OnSubmit(ctx, form); err != nil {
+				data := &FormAnswerData[T]{
+					Data:             form,
+					LastAnswerUpdate: update,
+				}
+
+				if err := params.OnSubmit(ctx, data); err != nil {
 					log.Printf("error submitting form answer (%v): %v\n", answer, err)
 					return err
 				}
